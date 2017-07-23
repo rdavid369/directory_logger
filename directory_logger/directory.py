@@ -18,18 +18,28 @@ class Directory:
             Ther name of the directory you want to scan.
         '''
         try:
-            self._contents = {}
-            for item in os.listdir(name):
-                self._contents[item] = {
-                    'size': os.path.getsize(item),
-                    'file': os.path.isfile(item),
-                    'dir':  os.path.isdir(item)
-                }
+            if os.path.isdir(name) and os.listdir(name):
+                self.name = name
+            else:
+                raise FileNotFoundError
 
-            self.name = name
-        except FileNotFoundError as e:
+        except FileNotFoundError:
             print('The directory: {0} can not be found.  Check your path and try again.'.format(name))
-            print(e)
+
+
+        self._contents = {}
+        for item in os.listdir(name):
+            try:
+                self._contents[item] = {
+                    'size': os.path.getsize(os.path.join(name, item)),
+                    'file': os.path.isfile(os.path.join(name, item)),
+                    'dir':  os.path.isdir(os.path.join(name, item))
+                }
+            except FileNotFoundError:
+                print('Error reading file {0}'.format(item))
+
+            except:
+                raise
 
     def contents(self):
         '''
